@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Ticket Creation</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root{
+  --primary:#2563eb;
+  --primary2:#3b82f6;
+  --bg:#f1f5f9;
+  --card:#ffffff;
+  --text:#1f2937;
+  --border:#e5e7eb;
+  --sidebar:#1f2937;
+  --sidebarHover:#3b82f6;
+}
+
+body.dark{
+  --bg:#0f172a;
+  --card:#1e293b;
+  --text:#f1f5f9;
+  --border:#334155;
+  --sidebar:#0f172a;
+  --sidebarHover:#2563eb;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Poppins",sans-serif;
+  transition: background 0.3s, color 0.3s, border 0.3s;
+}
+
+body{
+  display:flex;
+  background:var(--bg);
+  color:var(--text);
+}
+
+/* Sidebar */
+.sidebar{
+  width:260px;
+  height:100vh;
+  position:fixed;
+  padding:25px 15px;
+  background:linear-gradient(180deg,var(--sidebar),#111827);
+}
+
+.sidebar h2{
+  color:#3b82f6;
+  text-align:center;
+  margin-bottom:30px;
+}
+
+.sidebar a{
+  display:flex;
+  padding:12px;
+  margin:8px 0;
+  background:#2d3748;
+  color:#d1d5db;
+  text-decoration:none;
+  border-radius:10px;
+  align-items:center;
+  transition:0.3s;
+}
+
+.sidebar a.active,
+.sidebar a:hover{
+  background:var(--sidebarHover);
+  color:white;
+}
+
+.sidebar a i{margin-right:10px;}
+
+/* Main */
+.main{
+  margin-left:260px;
+  width:calc(100% - 260px);
+  padding:40px;
+}
+
+/* Toggle Button */
+.theme-toggle{
+  position:absolute;
+  right:40px;
+  top:40px;
+  background:var(--card);
+  border:1px solid var(--border);
+  padding:10px 14px;
+  border-radius:50px;
+  cursor:pointer;
+  box-shadow:0 5px 15px rgba(0,0,0,0.08);
+}
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, #5382e7, #3b82f6);
+  padding: 30px 20px;
+  border-radius: 25px;
+  color: white;
+  margin-bottom: 35px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  box-shadow: 0 15px 35px rgba(37,99,235,0.25);
+}
+
+.hero-text h1 {
+  font-size: 2.2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.hero-text p {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.hero-icon {
+  font-size: 4rem;
+  opacity: 0.2;
+}
+
+/* Card */
+.card{
+  background:var(--card);
+  padding:30px;
+  border-radius:20px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.06);
+  margin-bottom:30px;
+}
+
+/* Inputs */
+textarea,
+select,
+input{
+  width:100%;
+  padding:12px 15px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  margin-top:12px;
+  font-size:0.95rem;
+  outline:none;
+}
+
+textarea{
+  height:140px;
+  resize:none;
+}
+
+textarea:focus,
+select:focus,
+input:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(37,99,235,0.15);
+}
+
+/* Grid */
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+  margin-top:10px;
+}
+
+/* Button */
+.btn{
+  margin-top:20px;
+  padding:13px 20px;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+  color:white;
+  font-weight:600;
+}
+
+.btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(37,99,235,0.3);
+}
+
+/* Loading */
+.loading{
+  display:none;
+  text-align:center;
+  margin-top:15px;
+}
+
+/* Result */
+.result-section{
+  display:none;
+}
+
+.badge{
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:0.75rem;
+  font-weight:600;
+}
+
+.high{background:#fee2e2;color:#dc2626;}
+.medium{background:#fef3c7;color:#b45309;}
+.low{background:#dcfce7;color:#16a34a;}
+
+.progress{
+  height:8px;
+  background:#e5e7eb;
+  border-radius:10px;
+  overflow:hidden;
+  margin-top:8px;
+}
+
+.progress div{
+  height:100%;
+  background:var(--primary);
+  transition:width 0.6s ease;
+}
+
+.success{
+  display:none;
+  margin-top:15px;
+  padding:12px;
+  background:#dcfce7;
+  color:#166534;
+  border-radius:10px;
+}
+
+/* Responsive */
+@media(max-width:900px){
+  .form-grid{ grid-template-columns:1fr; }
+  .sidebar{ display:none; }
+  .main{ margin-left:0; width:100%; }
+  .hero{ text-align:center; justify-content:center; }
+  .hero-icon{ display:none; }
+  .theme-toggle{ top:20px; right:20px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+  <h2> <i class="fas fa-robot"></i>  Ticket System</h2>
+  <a href="#"><i class="fas fa-home"></i> Dashboard</a>
+  <a href="#" class="active"><i class="fas fa-plus"></i> Create Ticket</a>
+  <a href="#"><i class="fas fa-file"></i> Ticket History</a>
+  <a href="#"><i class="fas fa-user"></i> Profile</a>
+</div>
+
+<div class="main">
+
+  <!-- Toggle -->
+  <div class="theme-toggle" onclick="toggleTheme()">
+    <i id="themeIcon" class="fas fa-moon"></i>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-text">
+      <h1>Create AI-Powered Support Ticket</h1>
+      <p>Describe your issue and let our intelligent system streamline your support request.</p>
+    </div>
+    <div class="hero-icon">
+      <i class="fas fa-robot"></i>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="card">
+    <h3>Create New Ticket</h3>
+
+    <input id="title" placeholder="Enter Issue Title">
+    <textarea id="description" placeholder="Explain your issue in detail..."></textarea>
+
+    <div class="form-grid">
+      <select>
+        <option>Select Category</option>
+        <option>Hardware</option>
+        <option>Software</option>
+        <option>Access & Authentication</option>
+        <option>Network Issue</option>
+      </select>
+
+      <select>
+        <option>Select Priority</option>
+        <option>Low</option>
+        <option>Medium</option>
+        <option>High</option>
+      </select>
+
+      <select>
+        <option>Select Department</option>
+        <option>Finance</option>
+        <option>HR</option>
+        <option>IT</option>
+      </select>
+
+      <select>
+        <option>Select Device</option>
+        <option>Laptop</option>
+        <option>Printer</option>
+      </select>
+    </div>
+
+    <button class="btn" onclick="analyzeTicket()">Analyze with AI</button>
+
+    <div class="loading" id="loading">
+      <i class="fas fa-spinner fa-spin"></i> AI Processing...
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggleTheme(){
+  document.body.classList.toggle("dark");
+  const icon = document.getElementById("themeIcon");
+  if(document.body.classList.contains("dark")){
+    icon.classList.remove("fa-moon");
+    icon.classList.add("fa-sun");
+  } else {
+    icon.classList.remove("fa-sun");
+    icon.classList.add("fa-moon");
+  }
+}
+
+function analyzeTicket(){
+  const desc = document.getElementById("description").value;
+  if(desc.trim()===""){
+    alert("Description cannot be empty!");
+    return;
+  }
+  document.getElementById("loading").style.display="block";
+  setTimeout(()=>{
+    document.getElementById("loading").style.display="none";
+  },1500);
+}
+</script>
+
+</body>
+</html>
