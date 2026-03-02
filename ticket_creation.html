@@ -65,7 +65,6 @@ body{
   text-decoration:none;
   border-radius:10px;
   align-items:center;
-  transition:0.3s;
 }
 
 .sidebar a.active,
@@ -93,7 +92,6 @@ body{
   padding:10px 14px;
   border-radius:50px;
   cursor:pointer;
-  box-shadow:0 5px 15px rgba(0,0,0,0.08);
 }
 
 /* HERO */
@@ -132,7 +130,6 @@ body{
   padding:30px;
   border-radius:20px;
   box-shadow:0 10px 25px rgba(0,0,0,0.06);
-  margin-bottom:30px;
 }
 
 /* Inputs */
@@ -185,52 +182,6 @@ input:focus{
   box-shadow:0 8px 20px rgba(37,99,235,0.3);
 }
 
-/* Loading */
-.loading{
-  display:none;
-  text-align:center;
-  margin-top:15px;
-}
-
-/* Result */
-.result-section{
-  display:none;
-}
-
-.badge{
-  padding:6px 12px;
-  border-radius:20px;
-  font-size:0.75rem;
-  font-weight:600;
-}
-
-.high{background:#fee2e2;color:#dc2626;}
-.medium{background:#fef3c7;color:#b45309;}
-.low{background:#dcfce7;color:#16a34a;}
-
-.progress{
-  height:8px;
-  background:#e5e7eb;
-  border-radius:10px;
-  overflow:hidden;
-  margin-top:8px;
-}
-
-.progress div{
-  height:100%;
-  background:var(--primary);
-  transition:width 0.6s ease;
-}
-
-.success{
-  display:none;
-  margin-top:15px;
-  padding:12px;
-  background:#dcfce7;
-  color:#166534;
-  border-radius:10px;
-}
-
 /* Responsive */
 @media(max-width:900px){
   .form-grid{ grid-template-columns:1fr; }
@@ -246,11 +197,11 @@ input:focus{
 <body>
 
 <div class="sidebar">
-  <h2> <i class="fas fa-robot"></i>  Ticket System</h2>
-  <a href="#"><i class="fas fa-home"></i> Dashboard</a>
-  <a href="#" class="active"><i class="fas fa-plus"></i> Create Ticket</a>
-  <a href="#"><i class="fas fa-file"></i> Ticket History</a>
-  <a href="#"><i class="fas fa-user"></i> Profile</a>
+  <h2><i class="fas fa-robot"></i> Ticket System</h2>
+  <a href="home.html"><i class="fas fa-home"></i> Dashboard</a>
+  <a href="ticket_creation.html" class="active"><i class="fas fa-plus"></i> Create Ticket</a>
+  <a href="history.html"><i class="fas fa-file"></i> Ticket History</a>
+  <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
 </div>
 
 <div class="main">
@@ -263,56 +214,27 @@ input:focus{
   <!-- HERO -->
   <div class="hero">
     <div class="hero-text">
-      <h1>Create AI-Powered Support Ticket</h1>
-      <p>Describe your issue and let our intelligent system streamline your support request.</p>
+      <h1>Create Support Ticket</h1>
+      <p>Fill in the details below to submit your issue.</p>
     </div>
     <div class="hero-icon">
-      <i class="fas fa-robot"></i>
+      <i class="fas fa-ticket-alt"></i>
     </div>
   </div>
 
-  <!-- Input -->
+  <!-- FORM CARD -->
   <div class="card">
     <h3>Create New Ticket</h3>
 
-    <input id="title" placeholder="Enter Issue Title">
-    <textarea id="description" placeholder="Explain your issue in detail..."></textarea>
+    <form action="/create-ticket" method="POST">
+      
+      <textarea name="description" placeholder="Explain your issue in detail..." required></textarea>
+     
+      <button type="submit" class="btn">
+        <i class="fas fa-paper-plane"></i> Analyze
+      </button>
+    </form>
 
-    <div class="form-grid">
-      <select>
-        <option>Select Category</option>
-        <option>Hardware</option>
-        <option>Software</option>
-        <option>Access & Authentication</option>
-        <option>Network Issue</option>
-      </select>
-
-      <select>
-        <option>Select Priority</option>
-        <option>Low</option>
-        <option>Medium</option>
-        <option>High</option>
-      </select>
-
-      <select>
-        <option>Select Department</option>
-        <option>Finance</option>
-        <option>HR</option>
-        <option>IT</option>
-      </select>
-
-      <select>
-        <option>Select Device</option>
-        <option>Laptop</option>
-        <option>Printer</option>
-      </select>
-    </div>
-
-    <button class="btn" onclick="analyzeTicket()">Analyze with AI</button>
-
-    <div class="loading" id="loading">
-      <i class="fas fa-spinner fa-spin"></i> AI Processing...
-    </div>
   </div>
 
 </div>
@@ -321,25 +243,8 @@ input:focus{
 function toggleTheme(){
   document.body.classList.toggle("dark");
   const icon = document.getElementById("themeIcon");
-  if(document.body.classList.contains("dark")){
-    icon.classList.remove("fa-moon");
-    icon.classList.add("fa-sun");
-  } else {
-    icon.classList.remove("fa-sun");
-    icon.classList.add("fa-moon");
-  }
-}
-
-function analyzeTicket(){
-  const desc = document.getElementById("description").value;
-  if(desc.trim()===""){
-    alert("Description cannot be empty!");
-    return;
-  }
-  document.getElementById("loading").style.display="block";
-  setTimeout(()=>{
-    document.getElementById("loading").style.display="none";
-  },1500);
+  icon.classList.toggle("fa-moon");
+  icon.classList.toggle("fa-sun");
 }
 </script>
 
