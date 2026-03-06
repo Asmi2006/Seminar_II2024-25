@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Profile - Ticket System</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root{
+  --primary:#2563eb;
+  --bg:#f1f5f9;
+  --card:rgba(255,255,255,0.75);
+  --text:#1f2937;
+  --border:#e5e7eb;
+}
+body.dark{
+  --bg:#0f172a;
+  --card:rgba(30,41,59,0.75);
+  --text:#f1f5f9;
+  --border:#334155;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Poppins",sans-serif;}
+body{display:flex;background:var(--bg);color:var(--text);}
+
+/* Sidebar */
+.sidebar{
+  width:260px;height:100vh;position:fixed;
+  padding:25px 15px;background:linear-gradient(180deg,#1f2937,#111827);
+}
+.sidebar h2{color:#3b82f6;text-align:center;margin-bottom:30px;}
+.sidebar a{
+  display:flex;padding:12px;margin:8px 0;
+  background:#2d3748;color:#d1d5db;text-decoration:none;border-radius:12px;
+}
+.sidebar a.active,.sidebar a:hover{background:#2563eb;color:white;}
+.sidebar a i{margin-right:10px;}
+
+/* Main */
+.main{margin-left:260px;width:calc(100% - 260px);padding:40px;}
+
+/* Top Bar */
+.top-bar{display:flex;justify-content:flex-end;align-items:center;gap:25px;margin-bottom:25px;}
+#themeIcon{cursor:pointer;font-size:1.4rem;}
+
+/* Notifications */
+.notification-wrapper{position:relative;cursor:pointer;}
+#bellIcon{font-size:1.5rem;color:var(--primary);}
+.badge{
+  position:absolute;top:-6px;right:-8px;background:red;color:white;
+  font-size:0.7rem;padding:3px 6px;border-radius:50%;
+  animation:pulse 1.5s infinite;
+}
+@keyframes pulse{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.2);}
+  100%{transform:scale(1);}
+}
+.notification-panel{
+  position:absolute;right:0;top:40px;width:300px;
+  background:var(--card);backdrop-filter:blur(20px);
+  border-radius:15px;box-shadow:0 15px 35px rgba(0,0,0,0.15);
+  padding:15px;display:none;z-index:999;
+}
+.notification-panel ul{list-style:none;max-height:250px;overflow-y:auto;}
+.notification-panel li{padding:10px;border-bottom:1px solid var(--border);}
+.notification-panel small{color:gray;font-size:0.75rem;}
+.notification-panel button{
+  width:100%;padding:8px;margin-top:10px;border:none;
+  border-radius:8px;background:var(--primary);color:white;cursor:pointer;
+}
+
+/* Profile */
+.profile-header{
+  background:linear-gradient(135deg,#537de7,#3b82f6);
+  padding: 15px; border-radius:20px;
+  display:flex;align-items:center;gap:25px;margin-bottom:35px;color:white;
+}
+.avatar{
+  width:110px;height:110px;border-radius:50%;
+  padding:5px;background:linear-gradient(135deg,#3b82f6,#60a5fa);
+  cursor:pointer;
+}
+.avatar img{
+  width:100%;height:100%;border-radius:50%;
+  border:4px solid white;object-fit:cover;
+}
+.role-badge{
+  font-size:0.7rem;padding:4px 10px;border-radius:20px;
+  margin-left:10px;color:white;
+}
+.role-badge.admin{background:#dc2626;}
+.role-badge.user{background:#111827;}
+
+/* Modal */
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,0.4);
+  display:none;justify-content:center;align-items:center;z-index:999;
+}
+.modal-content{
+  width:350px;background:var(--card);
+  padding:25px;border-radius:15px;color:var(--text);
+}
+.modal-content input,.modal-content select{
+  width:100%;padding:10px;margin:8px 0;
+  border-radius:8px;border:1px solid var(--border);
+}
+.modal-content button{
+  width:100%;padding:10px;border:none;
+  border-radius:8px;background:var(--primary);
+  color:white;cursor:pointer;
+}
+.error{font-size:0.75rem;color:red;height:14px;}
+
+/* Tickets */
+.table-section{background:var(--card);padding:25px;border-radius:20px;}
+.ticket-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.tabs{display:flex;gap:10px;}
+.tabs button{
+  padding:8px 16px;border-radius:20px;border:1px solid var(--primary);
+  background:rgba(37,99,235,0.1);color:var(--primary);cursor:pointer;
+}
+.tabs button.active{background:var(--primary);color:white;}
+table{width:100%;border-collapse:collapse;}
+th,td{padding:14px;}
+th{background:#1f2937;color:white;}
+.status{padding:6px 12px;border-radius:20px;font-size:0.75rem;font-weight:bold;}
+.open{background:#fee2e2;color:#dc2626;}
+.closed{background:#e0e7ff;color:#4338ca;}
+.resolved{background:#dcfce7;color:#16a34a;}
+
+/* Activity */
+.activity-section{margin-top:30px;background:var(--card);padding:25px;border-radius:20px;}
+.activity-item{
+  padding:12px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;
+}
+.activity-item:last-child{border-bottom:none;}
+.activity-item small{color:gray;}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+<h2><i class="fas fa-robot"></i> Ticket System</h2>
+<a href="home.html"><i class="fas fa-home"></i> Dashboard</a>
+<a href="ticket_creation.html"><i class="fas fa-plus"></i> Create Ticket</a>
+<a href="history.html"><i class="fas fa-file"></i> Ticket History</a>
+<a href="profile.html" class="active"><i class="fas fa-user"></i> Profile</a>
+</div>
+
+<div class="main">
+
+<div class="top-bar">
+<i id="themeIcon" class="fas fa-moon" onclick="toggleTheme()"></i>
+
+<div class="notification-wrapper">
+<i id="bellIcon" class="fas fa-bell" onclick="toggleNotifications()"></i>
+<span class="badge" id="notificationCount">0</span>
+
+<div class="notification-panel" id="notificationPanel">
+<h4>Notifications</h4>
+<ul id="notificationList"></ul>
+<button onclick="markAsRead()">Mark All as Read</button>
+</div>
+</div>
+</div>
+
+<!-- Profile Section -->
+<div class="profile-header">
+<div class="avatar">
+<img id="profileImage" src="https://i.pravatar.cc/150?img=5">
+</div>
+
+<div>
+<h2 id="profileName">Asmita <span class="role-badge user">User</span></h2>
+<p>Email: <span id="profileEmail">asmita@email.com</span></p>
+<p>Phone: <span id="profilePhone">9876543210</span></p>
+<button onclick="openEditModal()" style="margin-top:10px;padding:8px 15px;border:none;background:#111827;color:white;border-radius:8px;cursor:pointer;">
+<i class="fas fa-edit"></i> Edit Profile
+</button>
+</div>
+
+<input type="file" id="imageUpload" hidden accept="image/*">
+</div>
+
+<!-- Tickets & Activity (UNCHANGED) -->
+<div class="table-section">
+<div class="ticket-header">
+<h2>Your Tickets</h2>
+<div class="tabs">
+<button class="active" onclick="filterTickets(event,'all')">All (<span id="countAll">0</span>)</button>
+<button onclick="filterTickets(event,'Open')">Open (<span id="countOpen">0</span>)</button>
+<button onclick="filterTickets(event,'Closed')">Closed (<span id="countClosed">0</span>)</button>
+<button onclick="filterTickets(event,'Resolved')">Resolved (<span id="countResolved">0</span>)</button>
+</div>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Issue</th>
+<th>Status</th>
+<th>Date</th>
+</tr>
+</thead>
+<tbody id="ticketBody"></tbody>
+</table>
+</div>
+
+<div class="activity-section">
+<h2>Recent Activity</h2>
+<div id="activityContainer"></div>
+</div>
+
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal" id="editModal">
+<div class="modal-content">
+<h3>Edit Profile</h3>
+<input type="text" id="editName" placeholder="Name">
+<small class="error" id="nameError"></small>
+<input type="email" id="editEmail" placeholder="Email">
+<small class="error" id="emailError"></small>
+<input type="text" id="editPhone" placeholder="Phone">
+<small class="error" id="phoneError"></small>
+<select id="editRole">
+<option>User</option>
+<option>Admin</option>
+</select>
+<button onclick="saveProfile()">Save Changes</button>
+</div>
+</div>
+
+<script>
+
+/* --- YOUR OLD FUNCTIONALITY (UNCHANGED) --- */
+let allTickets=[];
+
+function toggleTheme(){
+document.body.classList.toggle("dark");
+localStorage.setItem("theme",document.body.classList.contains("dark"));
+}
+if(localStorage.getItem("theme")==="true"){
+document.body.classList.add("dark");
+}
+
+function toggleNotifications(){
+let panel=document.getElementById("notificationPanel");
+panel.style.display = panel.style.display==="block" ? "none" : "block";
+}
+
+function loadNotifications(){
+fetch("http://localhost:5000/notifications")
+.then(res=>res.json())
+.then(data=>{
+document.getElementById("notificationCount").textContent=data.unread;
+let list=document.getElementById("notificationList");
+list.innerHTML="";
+data.notifications.forEach(n=>{
+list.innerHTML+=`<li>${n.message}<br><small>${n.time}</small></li>`;
+});
+});
+}
+function markAsRead(){
+fetch("http://localhost:5000/mark-read",{method:"POST"})
+.then(()=>loadNotifications());
+}
+setInterval(loadNotifications,10000);
+loadNotifications();
+
+function loadTickets(){
+fetch("http://localhost:5000/tickets")
+.then(res=>res.json())
+.then(data=>{
+allTickets=data;
+updateCounts();
+renderTickets(allTickets);
+generateActivity();
+});
+}
+function updateCounts(){
+countAll.textContent=allTickets.length;
+countOpen.textContent=allTickets.filter(t=>t.status==="Open").length;
+countClosed.textContent=allTickets.filter(t=>t.status==="Closed").length;
+countResolved.textContent=allTickets.filter(t=>t.status==="Resolved").length;
+}
+function filterTickets(e,status){
+document.querySelectorAll(".tabs button").forEach(btn=>btn.classList.remove("active"));
+e.target.classList.add("active");
+let filtered=status==="all"?allTickets:allTickets.filter(t=>t.status===status);
+renderTickets(filtered);
+}
+function renderTickets(tickets){
+ticketBody.innerHTML="";
+tickets.forEach(t=>{
+ticketBody.innerHTML+=`
+<tr>
+<td>#${t.id}</td>
+<td>${t.title}</td>
+<td><span class="status ${t.status.toLowerCase()}">${t.status}</span></td>
+<td>${t.date}</td>
+</tr>`;
+});
+}
+function generateActivity(){
+activityContainer.innerHTML="";
+allTickets.slice(0,3).forEach(t=>{
+activityContainer.innerHTML+=`
+<div class="activity-item">
+${t.title} (${t.status})
+<small>${t.date}</small>
+</div>`;
+});
+}
+loadTickets();
+
+/* --- NEW PROFILE FUNCTIONALITY --- */
+
+function loadProfile(){
+let name=localStorage.getItem("profileName")||"Asmita";
+let email=localStorage.getItem("profileEmail")||"asmita@email.com";
+let phone=localStorage.getItem("profilePhone")||"9876543210";
+let role=localStorage.getItem("profileRole")||"User";
+let image=localStorage.getItem("profileImage");
+
+profileName.innerHTML=name+` <span class="role-badge ${role.toLowerCase()}">${role}</span>`;
+profileEmail.textContent=email;
+profilePhone.textContent=phone;
+if(image) profileImage.src=image;
+applyRoleUI(role);
+}
+loadProfile();
+
+function openEditModal(){
+editModal.style.display="flex";
+editName.value=localStorage.getItem("profileName")||"Asmita";
+editEmail.value=localStorage.getItem("profileEmail")||"asmita@email.com";
+editPhone.value=localStorage.getItem("profilePhone")||"9876543210";
+editRole.value=localStorage.getItem("profileRole")||"User";
+}
+
+function saveProfile(){
+let name=editName.value.trim();
+let email=editEmail.value.trim();
+let phone=editPhone.value.trim();
+let role=editRole.value;
+
+if(name===""){nameError.textContent="Name required";return;}
+if(!/^[^ ]+@[^ ]+\.[a-z]{2,3}$/.test(email)){emailError.textContent="Invalid email";return;}
+if(!/^[0-9]{10}$/.test(phone)){phoneError.textContent="Phone must be 10 digits";return;}
+
+localStorage.setItem("profileName",name);
+localStorage.setItem("profileEmail",email);
+localStorage.setItem("profilePhone",phone);
+localStorage.setItem("profileRole",role);
+
+editModal.style.display="none";
+loadProfile();
+}
+
+profileImage.addEventListener("click",()=>imageUpload.click());
+imageUpload.addEventListener("change",(e)=>{
+const file=e.target.files[0];
+if(file){
+const reader=new FileReader();
+reader.onload=function(event){
+profileImage.src=event.target.result;
+localStorage.setItem("profileImage",event.target.result);
+}
+reader.readAsDataURL(file);
+}
+});
+
+function applyRoleUI(role){
+if(role==="Admin" && !document.getElementById("adminLink")){
+document.querySelector(".sidebar")
+.insertAdjacentHTML("beforeend",
+`<a id="adminLink" href="admin_panel.html"><i class="fas fa-shield-alt"></i> Admin Panel</a>`);
+}
+if(role==="User"){
+let admin=document.getElementById("adminLink");
+if(admin) admin.remove();
+}
+}
+
+</script>
+
+</body>
+</html>
