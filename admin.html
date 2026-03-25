@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard - AI Ticket System</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #020617;
+    color: white;
+    margin: 0;
+}
+
+.container {
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #38bdf8;
+}
+
+/* HERO */
+.hero {
+    background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    color: black;
+    margin-bottom: 20px;
+}
+
+/* Stats */
+.stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.box {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 10px;
+    width: 30%;
+    text-align: center;
+}
+
+/* Card */
+.card {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+/* Inputs */
+input, select {
+    padding: 8px;
+    margin: 5px;
+    border-radius: 5px;
+    border: none;
+}
+
+/* Buttons */
+button {
+    padding: 8px 12px;
+    margin: 5px;
+    background: #38bdf8;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0ea5e9;
+}
+
+/* Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th {
+    background: #334155;
+    padding: 10px;
+}
+
+td {
+    padding: 10px;
+    border-bottom: 1px solid gray;
+    text-align: center;
+}
+
+/* TOGGLE SWITCH */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 25px;
+}
+
+.switch input {
+    display: none;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    background-color: #ff4d4d;
+    border-radius: 25px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transition: 0.4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.4s;
+}
+
+input:checked + .slider {
+    background-color: #22c55e;
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+/* Toast */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #1e293b;
+    padding: 12px 20px;
+    border-radius: 8px;
+    border-left: 5px solid #38bdf8;
+    display: none;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+
+<!-- HERO -->
+<div class="hero">
+    <h2>Welcome Admin 👋</h2>
+    <p>Manage AI-generated tickets efficiently and monitor system performance.</p>
+</div>
+
+<!-- Stats -->
+<div class="stats">
+    <div class="box">
+        <h3>Total</h3>
+        <p id="total">0</p>
+    </div>
+    <div class="box">
+        <h3>Open</h3>
+        <p id="open">0</p>
+    </div>
+    <div class="box">
+        <h3>Resolved</h3>
+        <p id="resolved">0</p>
+    </div>
+</div>
+
+<!-- Add Ticket -->
+<div class="card">
+    <h2>Add Ticket</h2>
+    <input type="text" id="user" placeholder="User Name">
+    <input type="text" id="issue" placeholder="Issue">
+
+    <select id="priority">
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+    </select>
+
+    <button onclick="addTicket()">Add</button>
+</div>
+
+<!-- Search -->
+<div class="card">
+    <h2>Search</h2>
+    <input type="text" id="search" placeholder="Search..." onkeyup="searchTicket()">
+</div>
+
+<!-- Filter -->
+<div class="card">
+    <h2>Filter Tickets</h2>
+    <button onclick="filterTickets('all')">All</button>
+    <button onclick="filterTickets('Open')">Open</button>
+    <button onclick="filterTickets('Resolved')">Resolved</button>
+</div>
+
+<!-- Table -->
+<div class="card">
+    <h2>All Tickets</h2>
+    <table id="ticketTable"></table>
+</div>
+
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast">Message</div>
+
+<script>
+
+let tickets = JSON.parse(localStorage.getItem("tickets")) || [
+    {id: 101, user: "John", issue: "Login Issue", status: "Open", priority: "High"},
+    {id: 102, user: "Emma", issue: "Payment Failed", status: "Resolved", priority: "Medium"}
+];
+
+function saveData() {
+    localStorage.setItem("tickets", JSON.stringify(tickets));
+}
+
+function showToast(msg) {
+    let toast = document.getElementById("toast");
+    toast.innerText = msg;
+    toast.style.display = "block";
+
+    setTimeout(() => {
+        toast.style.display = "none";
+    }, 2000);
+}
+
+function renderTickets(filter="all", search="") {
+    let table = document.getElementById("ticketTable");
+
+    table.innerHTML = `
+        <tr>
+            <th>ID</th>
+            <th>User</th>
+            <th>Issue</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    `;
+
+    let total = 0, open = 0, resolved = 0;
+
+    tickets.forEach((t, index) => {
+
+        total++;
+        if(t.status === "Open") open++;
+        else resolved++;
+
+        if((filter === "all" || t.status === filter) &&
+           (t.user.toLowerCase().includes(search) || t.issue.toLowerCase().includes(search))) {
+
+            let color = t.priority === "High" ? "red" :
+                        t.priority === "Medium" ? "orange" : "lightgreen";
+
+            let row = table.insertRow();
+
+            row.innerHTML = `
+                <td>${t.id}</td>
+                <td>${t.user}</td>
+                <td>${t.issue}</td>
+                <td style="color:${color}">${t.priority}</td>
+                <td>
+                    <label class="switch">
+                        <input type="checkbox" ${t.status === "Resolved" ? "checked" : ""} 
+                               onchange="toggleStatus(${index})">
+                        <span class="slider"></span>
+                    </label>
+                </td>
+                <td>
+                    <button onclick="deleteTicket(${index})">Delete</button>
+                </td>
+            `;
+        }
+    });
+
+    document.getElementById("total").innerText = total;
+    document.getElementById("open").innerText = open;
+    document.getElementById("resolved").innerText = resolved;
+
+    saveData();
+}
+
+function addTicket() {
+    let user = document.getElementById("user").value;
+    let issue = document.getElementById("issue").value;
+    let priority = document.getElementById("priority").value;
+
+    if(user === "" || issue === "") {
+        showToast("Fill all fields");
+        return;
+    }
+
+    let id = Date.now();
+
+    tickets.push({id, user, issue, status: "Open", priority});
+
+    renderTickets();
+
+    document.getElementById("user").value = "";
+    document.getElementById("issue").value = "";
+
+    showToast("Ticket Added");
+}
+
+function toggleStatus(index) {
+    tickets[index].status = tickets[index].status === "Open" ? "Resolved" : "Open";
+    renderTickets();
+    showToast("Status Updated");
+}
+
+function deleteTicket(index) {
+    tickets.splice(index, 1);
+    renderTickets();
+    showToast("Ticket Deleted");
+}
+
+function filterTickets(type) {
+    renderTickets(type, document.getElementById("search").value.toLowerCase());
+}
+
+function searchTicket() {
+    let value = document.getElementById("search").value.toLowerCase();
+    renderTickets("all", value);
+}
+
+renderTickets();
+
+</script>
+
+</body>
+</html>
